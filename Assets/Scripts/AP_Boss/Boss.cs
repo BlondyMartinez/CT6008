@@ -28,6 +28,7 @@ public class Boss : MonoBehaviour
 
     private enum BossState {
         Idle,
+        Chase,
         GoHome,
         Heal,
         ShootAttack,
@@ -67,25 +68,32 @@ public class Boss : MonoBehaviour
     void Update()
     {
 
-        MoveToPlayer();
+        switch (currentState)
+        {
+            case BossState.Idle:
+                Idle();
+                navAgent.enabled = false;
+                break;
+            case BossState.Chase:
+                MoveToPlayer();
+                break;
+            //case BossState.GoHome:
+            //    abilityGoHome.AbilityUpdate();
+            //    break;
+            //case BossState.Heal:
+            //    abilityHeal.AbilityUpdate();
+            //    break;
+            //case BossState.ShootAttack:
+            //    abilityShoot.AbilityUpdate();
+            //    break;
+            default:
+                break;
+        }
+    }
 
-        //switch (currentState)
-        //{
-        //    case BossState.Idle:
-
-        //        break;
-        //    case BossState.GoHome:
-        //        abilityGoHome.AbilityUpdate();
-        //        break;
-        //    case BossState.Heal:
-        //        abilityHeal.AbilityUpdate();
-        //        break;
-        //    case BossState.ShootAttack:
-        //        abilityShoot.AbilityUpdate();
-        //        break;
-        //    default:
-        //        break;
-        //}
+    public void Idle()
+    {
+        //animator;
     }
 
     public void TakeDamage(float ammount)
