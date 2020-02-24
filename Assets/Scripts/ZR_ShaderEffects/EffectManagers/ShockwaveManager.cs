@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿//////////////////////////////////////////////////
+/// File: ShockwaveManager.cs
+/// Author: Zack Raeburn
+/// Date Created: 23/01/20
+/// Description: 
+//////////////////////////////////////////////////
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,15 +15,25 @@ public class ShockwaveManager : MonoBehaviour
     private int m_shockThicknessID = 0;
     private int m_shockStrengthID = 0;
 
-    [SerializeField] private float m_targetShockSize = 500;
-    [SerializeField] private float m_shockSizeSpeed = 1f;
-    [SerializeField] private float m_targetShockStrength = 0f;
-    [SerializeField] private float m_shockStrengthSpeed = 1f;
+    [SerializeField] private float m_targetShockSize = 500f;
+    [SerializeField] private float m_shockSizeSpeed = 2000f;
+    [SerializeField] private float m_targetShockStrength = 1f;
+    [SerializeField] private float m_shockStrengthSpeed = 10f;
+
+    [SerializeField] private Transform m_shockwavePos = null;
 
     private IEnumerator m_currentCoroutine = null;
     private Material m_shockwaveMat = null;
 
     private void Awake()
+    {
+        InitialiseVariables();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private void InitialiseVariables()
     {
         m_shockSizeID = Shader.PropertyToID("_ShockSize");
         m_shockThicknessID = Shader.PropertyToID("_ShockThickness");
@@ -25,6 +42,10 @@ public class ShockwaveManager : MonoBehaviour
         FullScreenEffects.OnConstructMaterials += OnConstructMaterials;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="a_sender"></param>
     private void OnConstructMaterials(FullScreenEffects a_sender)
     {
         for (int i = 0; i < a_sender.Materials.Count; ++i)
@@ -37,6 +58,9 @@ public class ShockwaveManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public void CreateShockwave()
     {
         if (m_shockwaveMat == null)
@@ -49,10 +73,16 @@ public class ShockwaveManager : MonoBehaviour
         StartCoroutine(m_currentCoroutine);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator ShockwaveIE()
     {
         float shockSize = m_shockwaveMat.GetFloat(m_shockSizeID);
         float shockStrength = m_shockwaveMat.GetFloat(m_shockStrengthID);
+
+        m_shockwaveMat.SetVector("_WorldPos", m_shockwavePos.position);
 
         yield return null;
 

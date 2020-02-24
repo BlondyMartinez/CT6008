@@ -43,7 +43,6 @@ public class PillarController : MonoBehaviour
         if (lrm == null)
         {
             GameObject lrm = new GameObject("LineRendererManager");
-            lrm.transform.parent = transform;
             PillarController.lrm = lrm.AddComponent<LineRendererManager>();
         }
 
@@ -61,7 +60,7 @@ public class PillarController : MonoBehaviour
         {
             Vector3[] trajectory = new Vector3[lrm.ArcResolution];
 
-            float height = Mathf.Max(BeamOrigin.y, h.hc.transform.position.y);
+            float height = Mathf.Max(BeamOrigin.y, h.hc.transform.position.y);      //This causing errors when the boss is dead.
             Vector3 middlePos = Vector3.Lerp(BeamOrigin, h.hc.transform.position, 0.5f);
             middlePos.y = height + m_arcYOffset;
 
@@ -82,6 +81,10 @@ public class PillarController : MonoBehaviour
     {
         if (other.TryGetComponent(out HealthController controller))
         {
+            if (other.TryGetComponent(out Health health))
+            {
+                health.AddHealer();
+            }
             m_healables.Add(new Healable(controller, lrm.Activate()));
         }
     }
@@ -90,6 +93,11 @@ public class PillarController : MonoBehaviour
     {
         if (other.TryGetComponent(out HealthController controller))
         {
+            if (other.TryGetComponent(out Health health))
+            {
+                health.RemoveHealer();
+            }
+
             for (int i = 0; i < m_healables.Count; ++i)
             {
                 if (controller == m_healables[i].hc)
@@ -99,6 +107,14 @@ public class PillarController : MonoBehaviour
                     return;
                 }
             }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        foreach(Healable h in m_healables)
+        {
+            lrm.Deactivate(h.lr);
         }
     }
 }

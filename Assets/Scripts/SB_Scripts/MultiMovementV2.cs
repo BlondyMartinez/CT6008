@@ -1,6 +1,14 @@
-﻿//Sam Baker
+﻿//////////////////////////////////////////////////
+/// File: MultiMovementV2.cs
+/// Author: Sam Baker
+/// Date created: 01/02/20
+/// Last edit: 20/02/20
+/// Description: Script used to utilise multiple controls to operate the player.
+/// Comments:
+//////////////////////////////////////////////////
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
 public class MultiMovementV2 : MonoBehaviour
@@ -8,6 +16,8 @@ public class MultiMovementV2 : MonoBehaviour
     //Variable for Tom
     public Vector3 playerAccelaration;
 
+    //////////////////////////////////////////////////
+    //// Variables
     public float moveSpeed = 7.5f;
 
     private Vector3 jump;
@@ -27,10 +37,14 @@ public class MultiMovementV2 : MonoBehaviour
     private bool shouldJump = false;
     private CharacterController controller;
 
-    private Controls controls = null;
+    public bool shouldCharge;
 
     [SerializeField] private Animator placeholderAnims;
 
+    private Controls controls = null;
+
+    //////////////////////////////////////////////////
+    //// Functions
     private void Awake() => controls = new Controls();
 
     private void OnEnable() => controls.Player.Enable();
@@ -42,6 +56,10 @@ public class MultiMovementV2 : MonoBehaviour
         jump = new Vector3(transform.position.x, transform.position.y + 2.0f, transform.position.z);
         controller = GetComponent<CharacterController>();
         //rb = GetComponent<Rigidbody>();
+
+        //Lock the cursor
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     private void Update() {
@@ -54,7 +72,6 @@ public class MultiMovementV2 : MonoBehaviour
     public void Jump(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             if (isGrounded) {
-                Debug.Log("jump");
                 shouldJump = true;
                 isGrounded = false;
                 //transform.position = new Vector3(transform.position.x, transform.position.y + 2.0f, transform.position.z);
@@ -66,7 +83,6 @@ public class MultiMovementV2 : MonoBehaviour
 
     public void LeftStickPress(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Debug.Log("Press");
             if (leftStickPress) {
                 moveSpeed = 7.5f;
                 leftStickPress = false;
@@ -93,7 +109,12 @@ public class MultiMovementV2 : MonoBehaviour
             playerYRot.z = transform.eulerAngles.z;
             transform.eulerAngles = playerYRot;
         } else {
-            transform.LookAt(playerFace.transform.position);
+
+            Vector3 relativePos = playerFace.transform.position - transform.position;
+            Quaternion toRotation = Quaternion.LookRotation(relativePos);
+            transform.rotation = Quaternion.Lerp(transform.rotation, toRotation, 5 * Time.deltaTime);
+
+            //transform.LookAt(playerFace.transform.position);
         }
         //transform.position += (rotF * movementInput.y + rotR * movementInput.x) * moveSpeed * Time.deltaTime;
         moveDirection = (rotF * movementInput.y + rotR * movementInput.x) * moveSpeed;
@@ -115,8 +136,32 @@ public class MultiMovementV2 : MonoBehaviour
     }
 
     void OnCollisionStay(Collision col) {
+        Debug.Log(col.gameObject.tag);
         if (col.gameObject.tag == "Ground") {
             isGrounded = true;
+        }
+        if (col.gameObject.tag == "DeathBox")
+        {
+            SceneManager.LoadScene("BossLevel");
+        }
+    }
+
+    void OnCollisionExit(Collision col){
+        if (col.gameObject.tag == "Ground"){
+            shouldJump = true;
+            isGrounded = false;
+        }
+    }
+
+    private void OnTriggerStay(Collider col) {
+        if(col.gameObject.tag == "Pillar"){
+            shouldCharge = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider col) {
+        if (col.gameObject.tag == "Pillar") {
+            shouldCharge = false;
         }
     }
 }

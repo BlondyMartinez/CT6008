@@ -11,6 +11,8 @@ TagManager:
   - Bullet
   - Boss
   - Pillar
+  - DeathBox
+  - FaderImage
   layers:
   - Default
   - TransparentFX
@@ -43,7 +45,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - PostProcessing
   m_SortingLayers:
   - name: Default
     uniqueID: 0
