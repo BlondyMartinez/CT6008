@@ -25,6 +25,9 @@ public class Boss : MonoBehaviour
     public LayerMask pillarLayer;
     public LayerMask playerLayer;
 
+    private Vector3 pLocation;
+    private float bossDistance;
+
 
     private enum BossState {
         Idle,
@@ -55,18 +58,23 @@ public class Boss : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         navAgent.baseOffset = -0.125f;
 
-        ChooseAbility();
+        //ChooseAbility();
     }
 
     void ChooseAbility()
     {
-        currentState = BossState.ShootAttack;
+        //currentState = BossState.ShootAttack;
         //abilityShoot.AbilityStart();
     }
 
     // Update is called once per frame
     void Update()
     {
+        pLocation = player.transform.position;
+
+        bossDistance = Vector3.Distance(gameObject.transform.position, pLocation);
+
+        Debug.Log(currentState);
 
         switch (currentState)
         {
@@ -76,6 +84,7 @@ public class Boss : MonoBehaviour
                 break;
             case BossState.Chase:
                 MoveToPlayer();
+                animator.SetBool("Chase", true);
                 break;
             //case BossState.GoHome:
             //    abilityGoHome.AbilityUpdate();
@@ -93,7 +102,12 @@ public class Boss : MonoBehaviour
 
     public void Idle()
     {
-        //animator;
+        if (bossDistance < 40f)
+        {
+            //Debug.Log("Boss Now Follow");
+            currentState = BossState.Chase;
+            //animator;
+        }
     }
 
     public void TakeDamage(float ammount)
@@ -124,9 +138,7 @@ public class Boss : MonoBehaviour
 
     private void MoveToPlayer()
     {
-        var pLocation = player.transform.position;
 
-        float bossDistance = Vector3.Distance(gameObject.transform.position,pLocation);
 
         //Debug.Log(bossDistance);
 
